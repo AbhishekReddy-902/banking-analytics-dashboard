@@ -78,6 +78,132 @@ provide comprehensive visual insights for strategic decision-making.
 
 ---
 
+## 💡 Key SQL Queries
+
+### Q1: Total Number of Transactions
+```sql
+SELECT COUNT(*) AS total_transactions
+FROM bank_transactions;
+-- Result: 100K transactions
+```
+
+### Q2: Total Credit Amount
+```sql
+SELECT ROUND(SUM(amount)/1000000, 2) AS total_credit_M
+FROM bank_transactions
+WHERE transaction_type = 'Credit';
+-- Result: 127.60M
+```
+
+### Q3: Total Debit Amount
+```sql
+SELECT ROUND(SUM(amount)/1000000, 2) AS total_debit_M
+FROM bank_transactions
+WHERE transaction_type = 'Debit';
+-- Result: 127.29M
+```
+
+### Q4: Net Transaction Amount
+```sql
+SELECT ROUND(
+    SUM(CASE WHEN transaction_type='Credit' 
+        THEN amount ELSE -amount END)
+    /1000000, 2) AS net_transaction_M
+FROM bank_transactions;
+-- Result: 0.32M
+```
+
+### Q5: Account Activity Ratio
+```sql
+SELECT account_number,
+    ROUND(COUNT(*) / AVG(balance), 4) AS activity_ratio
+FROM bank_transactions
+GROUP BY account_number;
+-- Result: 50K accounts analyzed
+```
+
+### Q6: Transactions Per Month
+```sql
+SELECT YEAR(transaction_date) AS year,
+    MONTH(transaction_date) AS month,
+    CONCAT(ROUND(COUNT(*)/1000, 1), 'K') 
+    AS transactions_per_month
+FROM bank_transactions
+GROUP BY year, month;
+-- Result: 8.5K - 9.3K transactions per month
+```
+
+### Q7: Total Transaction Amount by Branch
+```sql
+SELECT branch, 
+    CONCAT('₹', ROUND(SUM(amount)/1000000, 2), 'M') 
+    AS total_amount
+FROM bank_transactions
+GROUP BY branch;
+-- Result: City Center ₹42.91M | Main ₹42.84M
+--         East ₹42.70M | Suburban ₹42.18M
+--         North ₹41.68M | Downtown ₹42.59M
+```
+
+### Q8: Transaction Volume by Bank
+```sql
+SELECT bank_name, 
+    CONCAT('₹', ROUND(SUM(amount)/1000000, 2), 'M') 
+    AS total_amount
+FROM bank_transactions
+GROUP BY bank_name;
+-- Result: Axis ₹42.71M | Kotak ₹42.83M
+--         ICICI ₹42.52M | PNB ₹42.37M
+--         HDFC ₹41.87M | SBI ₹42.59M
+```
+
+### Q9: Transaction Method Distribution
+```sql
+SELECT transaction_method, 
+    CONCAT(ROUND(COUNT(*)/1000, 2), 'K') 
+    AS total_transactions
+FROM bank_transactions
+GROUP BY transaction_method;
+-- Result: Credit Card: 33.31K
+--         Bank Transfer: 33.34K
+--         Debit Card: 33.35K
+```
+
+### Q10: High-Risk Transaction Flag
+```sql
+SELECT is_high_risk, 
+    CONCAT(ROUND(COUNT(*)/1000, 2), 'K') AS total_count,
+    CONCAT('₹', ROUND(SUM(amount)/1000000, 2), 'M') 
+    AS total_value
+FROM bank_transactions
+GROUP BY is_high_risk;
+-- Result: High-Risk: 81.57K = ₹244.72M
+--         Normal: 18.43K = ₹10.16M
+```
+
+### Q11: Suspicious Transaction Frequency
+```sql
+SELECT CONCAT(ROUND(COUNT(*)/1000, 2), 'K') 
+    AS suspicious_transactions
+FROM bank_transactions
+WHERE is_high_risk = 1;
+-- Result: 81.57K suspicious transactions
+```
+
+### Q12: Credit-Debit Summary View
+```sql
+CREATE VIEW vw_credit_debit_summary AS
+SELECT 
+    CONCAT('₹', ROUND(SUM(CASE WHEN transaction_type='Credit' 
+        THEN amount ELSE 0 END)/1000000, 2), 'M') 
+        AS total_credit,
+    CONCAT('₹', ROUND(SUM(CASE WHEN transaction_type='Debit' 
+        THEN amount ELSE 0 END)/1000000, 2), 'M') 
+        AS total_debit
+FROM bank_transactions;
+-- Result: Total Credit: ₹127.60M | Total Debit: ₹127.29M
+```
+
 ## 📸 Dashboard Preview
 ![Dashboard Screenshot](Screenshot%202026-03-24%20232639.png)
 
