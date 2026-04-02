@@ -79,7 +79,7 @@ provide comprehensive visual insights for strategic decision-making.
 ---
 
 ## 📸 Dashboard Preview
-![Dashboard Screenshot](Banking loan dashboard.png)
+![Dashboard Screenshot](Screenshot%202026-03-24%20232639.png)
 
 ---
 
